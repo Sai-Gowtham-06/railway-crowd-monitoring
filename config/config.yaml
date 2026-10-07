@@ -1,0 +1,108 @@
+camera:
+  source: "data/station_entry_live.mp4"
+  camera_id: "CAM-P1-CENTRAL"
+  station_name: "Central Railway Station - Platform 1"
+  width: 1280
+  height: 720
+  fps: 25
+
+detector:
+  model_path: "yolov8n.pt"
+  confidence: 0.35
+  iou: 0.45
+  device: "auto"  # auto | cuda | cpu
+  classes: [0]     # 0 = person in COCO dataset
+
+tracker:
+  tracker_type: "bytetrack"
+  track_activation_threshold: 0.30
+  lost_track_buffer: 35
+  minimum_matching_threshold: 0.70
+  frame_rate: 25
+
+rois:
+  waiting_concourse:
+    name: "Waiting Concourse"
+    polygon:
+      - [80, 160]
+      - [680, 160]
+      - [740, 680]
+      - [60, 680]
+    physical_area_m2: 45.0
+    type: "monitored"
+
+  platform_edge:
+    name: "Platform 1 Edge"
+    polygon:
+      - [720, 160]
+      - [1080, 160]
+      - [1160, 680]
+      - [760, 680]
+    physical_area_m2: 24.0
+    type: "monitored"
+
+  rail_bed_danger_zone:
+    name: "Track Rail Bed (Restricted Zone)"
+    polygon:
+      - [1100, 160]
+      - [1260, 160]
+      - [1260, 700]
+      - [1180, 700]
+    physical_area_m2: 12.0
+    type: "restricted"
+
+congestion_tiers:
+  low:
+    max_density: 1.5
+    label: "Low"
+    action: "Monitor"
+    color_bgr: [46, 204, 113] # Emerald Green
+  medium:
+    max_density: 3.0
+    label: "Medium"
+    action: "Log & Observe"
+    color_bgr: [241, 196, 15] # Sunflower Yellow
+  high:
+    max_density: 4.5
+    label: "High"
+    action: "Alert Security"
+    color_bgr: [230, 126, 34] # Orange
+  critical:
+    min_density: 4.5
+    label: "Critical"
+    action: "Immediate Action"
+    color_bgr: [231, 76, 60]  # Alizarin Red
+
+anomaly:
+  zscore_window: 60
+  min_samples_for_zscore: 15
+  density_zscore_threshold: 2.5
+  speed_spike_zscore_threshold: 2.8
+  panic:
+    min_crowd_size: 4
+    direction_entropy_threshold: 1.4
+    speed_variance_multiplier: 2.2
+  fall:
+    aspect_ratio_threshold: 0.85 # H/W drops below this when fallen
+    drop_speed_threshold: 30.0   # vertical pixel displacement rate
+    standstill_seconds: 1.2
+  intrusion:
+    restricted_zone_keys:
+      - "rail_bed_danger_zone"
+
+alerting:
+  webhook_url: "http://127.0.0.1:8000/api/mock_webhook"
+  webhook_enabled: false
+  cooldown_seconds: 8
+  log_file: "logs/station_anomalies.jsonl"
+
+privacy:
+  anonymize_faces: true
+  blur_kernel_size: 25
+  face_ratio_top: 0.25 # Blur top 25% of person bounding box
+  save_raw_frames: false
+
+dashboard:
+  host: "0.0.0.0"
+  port: 8000
+  stream_fps: 25

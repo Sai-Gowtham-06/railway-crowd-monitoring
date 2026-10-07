@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Production-ready AI-based intelligent crowd monitoring and anomaly detection system for railway station CCTV feeds.">
+  <title>RAIL-WATCH AI | Mission-Control CCTV Crowd & Anomaly Monitor</title>
+  
+  <!-- Google Fonts: Inter & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- Reference-Inspired Layered Blue Waves Background -->
+  <div class="bg-waves-decoration" aria-hidden="true">
+    <div class="wave-shape wave-shape-1"></div>
+    <div class="wave-shape wave-shape-2"></div>
+    <div class="wave-shape wave-shape-3"></div>
+    <div class="wave-shape wave-shape-accent"></div>
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+  </div>
+
+  <!-- Top Navigation / Mission Control Bar -->
+  <header class="top-nav" id="mainHeader">
+    <div class="brand-group">
+      <div class="brand-badge">
+        <span class="live-indicator"></span>
+        <span class="brand-title">RAIL-WATCH AI</span>
+      </div>
+      <div class="station-meta">
+        <span class="station-name" id="stationNameLabel">Central Railway Station - Platform 1</span>
+        <span class="camera-tag" id="cameraIdTag">CAM-P1-CENTRAL</span>
+      </div>
+    </div>
+
+    <div class="system-telemetry-pill">
+      <div class="pill-item">
+        <span class="pill-label">STATUS</span>
+        <span class="pill-value status-online" id="systemStatusText">ONLINE</span>
+      </div>
+      <div class="pill-divider"></div>
+      <div class="pill-item">
+        <span class="pill-label">INFERENCE</span>
+        <span class="pill-value" id="fpsDisplay">25.0 FPS</span>
+      </div>
+      <div class="pill-divider"></div>
+      <div class="pill-item">
+        <span class="pill-label">PRIVACY</span>
+        <span class="pill-value status-active" id="privacyStatusText">FACE BLUR ON</span>
+      </div>
+      <div class="pill-divider"></div>
+      <div class="pill-item">
+        <span class="pill-label">TIME (UTC)</span>
+        <span class="pill-value" id="liveClock">--:--:--</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-container">
+    <!-- Camera Source Selector Bar -->
+    <section class="source-control-bar" aria-label="Camera Source Selection">
+      <div class="source-control-left">
+        <span class="source-label">SELECT INPUT SOURCE:</span>
+        <div class="source-buttons-group">
+          <button class="source-btn active" id="btnSourceSim" data-source="data/station_entry_live.mp4">
+            <span>🚂</span> Station Entry Live Feed
+          </button>
+          <button class="source-btn" id="btnSourceWebcam" data-source="0">
+            <span>📹</span> Live Webcam (Camera 0)
+          </button>
+        </div>
+      </div>
+      <div class="source-control-right">
+        <span class="active-source-badge" id="activeSourceTag">Current Source: Station Entry Live Feed</span>
+      </div>
+    </section>
+
+    <!-- Quick Metric Cards HUD -->
+    <section class="metrics-strip" aria-label="Key Performance Indicators">
+      <div class="metric-card" id="cardTotalPassengers">
+        <div class="card-icon icon-passengers">👥</div>
+        <div class="card-content">
+          <span class="card-label">TOTAL PASSENGERS</span>
+          <div class="card-value-wrap">
+            <span class="card-number" id="valTotalPassengers">0</span>
+            <span class="card-unit">pax</span>
+          </div>
+        </div>
+        <div class="card-micro-status">All Monitored Zones</div>
+      </div>
+
+      <div class="metric-card" id="cardPlatformDensity">
+        <div class="card-icon icon-density">📊</div>
+        <div class="card-content">
+          <span class="card-label">PEAK ZONE DENSITY</span>
+          <div class="card-value-wrap">
+            <span class="card-number" id="valPeakDensity">0.00</span>
+            <span class="card-unit">p/m²</span>
+          </div>
+        </div>
+        <span class="tier-pill tier-low" id="peakTierBadge">LOW</span>
+      </div>
+
+      <div class="metric-card" id="cardCrowdSpeed">
+        <div class="card-icon icon-motion">⚡</div>
+        <div class="card-content">
+          <span class="card-label">MEAN FLOW VELOCITY</span>
+          <div class="card-value-wrap">
+            <span class="card-number" id="valMeanSpeed">0.0</span>
+            <span class="card-unit">px/s</span>
+          </div>
+        </div>
+        <div class="card-micro-status" id="dominantDirText">Direction: 0°</div>
+      </div>
+
+      <div class="metric-card" id="cardActiveAnomalies">
+        <div class="card-icon icon-alert">🚨</div>
+        <div class="card-content">
+          <span class="card-label">ACTIVE ALERTS</span>
+          <div class="card-value-wrap">
+            <span class="card-number alert-count" id="valActiveAlerts">0</span>
+            <span class="card-unit">events</span>
+          </div>
+        </div>
+        <div class="card-micro-status" id="activeAnomalySummary">System Normal</div>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="viewport-grid">
+      <!-- Left: Primary CCTV Stream & Controls -->
+      <section class="video-section">
+        <div class="section-card video-card">
+          <div class="card-header">
+            <div class="header-left">
+              <span class="stream-pulse"></span>
+              <h2 class="card-title">Live Video Feed with Real-Time AI Detection Overlays</h2>
+            </div>
+            <div class="stream-controls">
+              <button class="toggle-btn active" id="btnToggleHeatmap" title="Toggle Crowd Density Heatmap">🔥 Heatmap</button>
+              <button class="toggle-btn active" id="btnToggleROIs" title="Toggle Zone Boundaries">📐 Zones</button>
+              <button class="toggle-btn active" id="btnToggleTracks" title="Toggle ByteTrack IDs">🎯 IDs</button>
+              <button class="toggle-btn active" id="btnTogglePrivacy" title="Toggle Face Blurring">🛡️ Privacy</button>
+              <button class="toggle-btn" id="btnToggleSound" title="Toggle Alert Chime">🔔 Audio</button>
+            </div>
+          </div>
+
+          <div class="video-wrapper" id="videoWrapper">
+            <!-- MJPEG Live Stream -->
+            <img src="/api/stream" alt="Live CCTV Railway Platform Camera Stream" id="liveVideoFeed" class="live-stream-img" onerror="handleStreamError()">
+            <!-- HTML5 Video fallback for standalone/Vercel demo -->
+            <video id="demoVideoFeed" class="live-stream-img" src="/data/station_entry_live.mp4" autoplay loop muted playsinline style="display: none;"></video>
+            
+            <!-- Fallback placeholder if stream disconnected -->
+            <div class="stream-fallback" id="streamFallback" style="display:none;">
+              <div class="spinner"></div>
+              <p>Reconnecting to CCTV Feed...</p>
+            </div>
+
+            <!-- Active Critical Warning Banner -->
+            <div class="video-anomaly-banner" id="videoAnomalyBanner" style="display: none;">
+              <span class="banner-icon">⚠️</span>
+              <span class="banner-text" id="videoAnomalyText">CRITICAL ANOMALY DETECTED</span>
+            </div>
+          </div>
+
+          <div class="stream-footer">
+            <div class="legend-group">
+              <span class="legend-title">Congestion Tiers:</span>
+              <span class="legend-item"><span class="legend-dot dot-low"></span> &lt;1.5 Low</span>
+              <span class="legend-item"><span class="legend-dot dot-medium"></span> 1.5-3.0 Medium</span>
+              <span class="legend-item"><span class="legend-dot dot-high"></span> 3.0-4.5 High</span>
+              <span class="legend-item"><span class="legend-dot dot-critical"></span> &gt;4.5 Critical</span>
+            </div>
+            <div class="model-badge">YOLOv8n + ByteTrack | Face Anonymized</div>
+          </div>
+        </div>
+
+        <!-- Bird's-Eye Spatial Radar / Mini-Map -->
+        <div class="section-card minimap-card">
+          <div class="card-header">
+            <h3 class="card-title">Bird's-Eye Spatial Topography & Zone Distribution</h3>
+            <span class="tag-accent">Real-Time Radar</span>
+          </div>
+          <div class="minimap-canvas-container">
+            <canvas id="stationRadarCanvas" width="800" height="240"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: ROI Zone Metrics & Live Alert Incident Feed -->
+      <section class="telemetry-section">
+        <!-- Station Zone Breakdown -->
+        <div class="section-card zones-card">
+          <div class="card-header">
+            <h2 class="card-title">Zone Density & Capacity Telemetry</h2>
+            <span class="counter-badge" id="zonesCountBadge">3 Zones Monitored</span>
+          </div>
+          <div class="zones-list" id="zonesListContainer">
+            <div class="loading-placeholder">Loading monitored station zones...</div>
+          </div>
+        </div>
+
+        <!-- Live Incident / Anomaly Alerts Log -->
+        <div class="section-card alerts-card" id="alertsCard">
+          <div class="card-header">
+            <div class="header-left">
+              <h2 class="card-title">Security & Safety Incident Feed</h2>
+              <span class="alert-count-pill" id="totalAlertsBadge">0</span>
+            </div>
+            <div class="filter-group">
+              <button class="filter-btn active" data-filter="all" id="filterAllBtn">All</button>
+              <button class="filter-btn" data-filter="CRITICAL" id="filterCritBtn">Critical</button>
+              <button class="filter-btn" data-filter="HIGH" id="filterHighBtn">High</button>
+            </div>
+          </div>
+
+          <div class="alerts-feed-wrapper" id="alertsFeedContainer">
+            <div class="empty-alerts" id="emptyAlertsNotice">
+              <span class="empty-icon">✅</span>
+              <p>No active anomalies or safety incidents detected.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
