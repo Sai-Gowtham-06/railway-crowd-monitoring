@@ -64,9 +64,12 @@ async def _broadcast_telemetry(data: dict):
 
 # Mount dashboard static assets
 app.mount("/static", StaticFiles(directory="dashboard"), name="static")
+app.mount("/dashboard", StaticFiles(directory="dashboard"), name="dashboard")
 
 @app.get("/", response_class=HTMLResponse)
 async def get_dashboard_root():
+    if os.path.exists("index.html"):
+        return FileResponse("index.html")
     index_file = "dashboard/index.html"
     if os.path.exists(index_file):
         return FileResponse(index_file)
