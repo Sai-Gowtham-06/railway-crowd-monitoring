@@ -1,0 +1,19 @@
+# Vercel Ignore - Exclude Python backend and heavy AI dependencies from Vercel deployment
+api/
+anomaly/
+analytics/
+alerting/
+detection/
+tracking/
+privacy/
+tests/
+pipeline.py
+evaluate.py
+requirements.txt
+pyproject.toml
+yolov8n.pt
+evaluation_report.md
+artifacts/
+.pytest_cache/
+__pycache__/
+logs/
